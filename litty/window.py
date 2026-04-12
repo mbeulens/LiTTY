@@ -34,7 +34,10 @@ class LittyWindow(Adw.ApplicationWindow):
         # ── Header bar ───────────────────────────────────────
         header = Adw.HeaderBar()
 
+        header.add_css_class("litty-header")
+
         new_btn = Gtk.Button(icon_name="list-add-symbolic", tooltip_text="New Session")
+        new_btn.add_css_class("new-session-btn")
         new_btn.connect("clicked", self._on_new_session)
         header.pack_start(new_btn)
 
@@ -115,14 +118,29 @@ class LittyWindow(Adw.ApplicationWindow):
             groups[session.group or "Ungrouped"].append(session)
 
         for group_name in sorted(groups.keys()):
-            # Group header
+            # Group header with color
             header_row = Gtk.ListBoxRow(selectable=False, activatable=False)
+            header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+            header_box.add_css_class("group-header-bar")
+            header_box.set_margin_top(8)
+            header_box.set_margin_bottom(2)
+
+            group_icon = Gtk.Image(icon_name="folder-symbolic")
+            group_icon.add_css_class("group-header")
+            header_box.append(group_icon)
+
             header_label = Gtk.Label(label=group_name, xalign=0)
-            header_label.add_css_class("heading")
-            header_label.set_margin_top(16)
-            header_label.set_margin_bottom(4)
-            header_label.set_margin_start(4)
-            header_row.set_child(header_label)
+            header_label.add_css_class("group-header")
+            header_box.append(header_label)
+
+            count_label = Gtk.Label(label=str(len(groups[group_name])))
+            count_label.add_css_class("dim-label")
+            count_label.add_css_class("caption")
+            count_label.set_hexpand(True)
+            count_label.set_halign(Gtk.Align.END)
+            header_box.append(count_label)
+
+            header_row.set_child(header_box)
             self._listbox.append(header_row)
 
             for session in sorted(groups[group_name], key=lambda s: s.name.lower()):

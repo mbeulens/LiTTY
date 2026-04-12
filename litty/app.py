@@ -5,7 +5,9 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gtk, Gdk, Gio, GLib
+
+from pathlib import Path
 
 from . import __version__, __app_id__
 from .models import AppConfig, load_config, save_config
@@ -24,6 +26,17 @@ class LittyApplication(Adw.Application):
 
     def do_startup(self):
         Adw.Application.do_startup(self)
+
+        # Load custom CSS
+        css_provider = Gtk.CssProvider()
+        css_path = Path(__file__).parent.parent / "data" / "style.css"
+        css_provider.load_from_path(str(css_path))
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+        )
+
         self.config = load_config()
 
         # Auto-detect terminal if not configured

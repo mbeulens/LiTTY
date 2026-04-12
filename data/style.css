@@ -1,0 +1,108 @@
+/* ── Protocol badges ────────────────────────────────── */
+.protocol-badge {
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 44px;
+}
+
+.protocol-ssh {
+    background-color: alpha(@success_color, 0.15);
+    color: @success_color;
+}
+
+.protocol-telnet {
+    background-color: alpha(@warning_color, 0.15);
+    color: @warning_color;
+}
+
+/* ── Protocol icon tinting ─────────────────────────── */
+.icon-ssh {
+    color: #2ec27e;
+}
+
+.icon-telnet {
+    color: #e5a50a;
+}
+
+/* ── Group headers ─────────────────────────────────── */
+.group-header {
+    color: @accent_color;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.group-header-bar {
+    background-color: alpha(@accent_color, 0.08);
+    border-radius: 8px;
+    padding: 6px 12px;
+    margin: 4px 0;
+}
+
+/* ── Session rows ──────────────────────────────────── */
+.session-row {
+    transition: background-color 150ms ease;
+}
+
+.session-row:hover {
+    background-color: alpha(@accent_color, 0.08);
+}
+
+.session-name {
+    font-weight: 600;
+}
+
+.session-detail {
+    font-size: 12px;
+}
+
+/* ── Edit button ───────────────────────────────────── */
+.edit-button {
+    color: alpha(@accent_color, 0.7);
+    transition: color 150ms ease;
+}
+
+.edit-button:hover {
+    color: @accent_color;
+}
+
+/* ── Header bar tint ───────────────────────────────── */
+.litty-header {
+    background: linear-gradient(to right,
+        alpha(#3584e4, 0.12),
+        alpha(#2ec27e, 0.08));
+}
+
+/* ── New session button ────────────────────────────── */
+.new-session-btn {
+    color: @success_color;
+}
+
+.new-session-btn:hover {
+    background-color: alpha(@success_color, 0.12);
+}
+
+/* ── Port forwarding pills ─────────────────────────── */
+.fwd-local {
+    color: #3584e4;
+}
+
+.fwd-remote {
+    color: #c061cb;
+}
+
+.fwd-dynamic {
+    color: #e5a50a;
+}
+
+/* ── Empty state ───────────────────────────────────── */
+.empty-state-icon {
+    color: alpha(@accent_color, 0.5);
+}
+
+/* ── Delete button in editor ───────────────────────── */
+.delete-session-btn {
+    margin-top: 8px;
+}
