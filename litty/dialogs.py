@@ -16,6 +16,7 @@ class SessionDialog(Adw.Dialog):
     __gtype_name__ = "SessionDialog"
     __gsignals__ = {
         "saved": (GObject.SignalFlags.RUN_FIRST, None, (object,)),
+        "deleted": (GObject.SignalFlags.RUN_FIRST, None, (object,)),
     }
 
     def __init__(self, parent_window, session: Session | None = None, **kwargs):
@@ -44,6 +45,20 @@ class SessionDialog(Adw.Dialog):
         header.pack_end(save_btn)
 
         toolbar_view.add_top_bar(header)
+
+        # Bottom bar with delete button (only when editing)
+        if self._editing:
+            bottom_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+            bottom_bar.set_margin_top(12)
+            bottom_bar.set_margin_bottom(12)
+            bottom_bar.set_margin_start(12)
+            bottom_bar.set_margin_end(12)
+            delete_btn = Gtk.Button(label="Delete Session", hexpand=True)
+            delete_btn.add_css_class("destructive-action")
+            delete_btn.add_css_class("pill")
+            delete_btn.connect("clicked", self._on_delete)
+            bottom_bar.append(delete_btn)
+            toolbar_view.add_bottom_bar(bottom_bar)
 
         # Content
         scrolled = Gtk.ScrolledWindow(vexpand=True)
@@ -143,6 +158,25 @@ class SessionDialog(Adw.Dialog):
 
         self.emit("saved", session)
         self.close()
+
+    def _on_delete(self, button):
+        parent = self
+        dialog = Adw.AlertDialog(
+            heading="Delete Session?",
+            body=f"Are you sure you want to delete \"{self._session.display_name}\"?",
+        )
+        dialog.add_response("cancel", "Cancel")
+        dialog.add_response("delete", "Delete")
+        dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
+        dialog.set_default_response("cancel")
+        dialog.set_close_response("cancel")
+        dialog.connect("response", self._on_delete_confirmed)
+        dialog.present(self)
+
+    def _on_delete_confirmed(self, dialog, response):
+        if response == "delete":
+            self.emit("deleted", self._session)
+            self.close()
 
     def _parse_forwardings(self, text: str) -> list[PortForward]:
         if not text:
