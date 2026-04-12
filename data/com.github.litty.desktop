@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=LiTTY
+Comment=SSH/Telnet session manager - PuTTY for Linux
+Exec=/usr/bin/python3 /home/beuner/Development/Local/LiTTY/litty.py
+Icon=litty
+Terminal=false
+Type=Application
+Categories=Network;RemoteAccess;GTK;
+Keywords=ssh;telnet;putty;terminal;remote;session;
+StartupNotify=true
+StartupWMClass=com.github.litty

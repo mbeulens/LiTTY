@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="termBg1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0d0d1a"/>
+    </linearGradient>
+    <linearGradient id="termBg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#16213e"/>
+      <stop offset="100%" stop-color="#0a0f1e"/>
+    </linearGradient>
+    <linearGradient id="frame1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a90d9"/>
+      <stop offset="100%" stop-color="#2d5f8a"/>
+    </linearGradient>
+    <linearGradient id="frame2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a7bc8"/>
+      <stop offset="100%" stop-color="#1e4f7a"/>
+    </linearGradient>
+    <linearGradient id="keyGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="50%" stop-color="#ffb800"/>
+      <stop offset="100%" stop-color="#e6a200"/>
+    </linearGradient>
+    <linearGradient id="keyGrad2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffec80"/>
+      <stop offset="50%" stop-color="#ffd700"/>
+      <stop offset="100%" stop-color="#ccac00"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+    <filter id="keyShadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0.5" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background terminal (slightly behind and offset) -->
+  <g filter="url(#shadow)" transform="translate(6, 4)">
+    <!-- Terminal frame -->
+    <rect x="8" y="14" width="72" height="58" rx="5" ry="5" fill="url(#frame2)"/>
+    <!-- Title bar -->
+    <rect x="8" y="14" width="72" height="14" rx="5" ry="0" fill="url(#frame2)"/>
+    <rect x="8" y="23" width="72" height="5" fill="url(#frame2)"/>
+    <!-- Title bar dots -->
+    <circle cx="18" cy="21" r="2.5" fill="#ff5f57" opacity="0.7"/>
+    <circle cx="26" cy="21" r="2.5" fill="#febc2e" opacity="0.7"/>
+    <circle cx="34" cy="21" r="2.5" fill="#28c840" opacity="0.7"/>
+    <!-- Screen -->
+    <rect x="11" y="29" width="66" height="40" rx="2" ry="2" fill="url(#termBg2)"/>
+    <!-- Terminal text lines (dim) -->
+    <rect x="15" y="34" width="30" height="2.5" rx="1" fill="#4a9" opacity="0.35"/>
+    <rect x="15" y="40" width="42" height="2.5" rx="1" fill="#4a9" opacity="0.3"/>
+    <rect x="15" y="46" width="25" height="2.5" rx="1" fill="#4a9" opacity="0.25"/>
+    <rect x="15" y="52" width="38" height="2.5" rx="1" fill="#4a9" opacity="0.3"/>
+    <rect x="15" y="58" width="18" height="2.5" rx="1" fill="#4a9" opacity="0.25"/>
+  </g>
+
+  <!-- Front terminal -->
+  <g filter="url(#shadow)" transform="translate(18, 16)">
+    <!-- Terminal frame -->
+    <rect x="8" y="14" width="72" height="58" rx="5" ry="5" fill="url(#frame1)"/>
+    <!-- Title bar -->
+    <rect x="8" y="14" width="72" height="14" rx="5" ry="0" fill="url(#frame1)"/>
+    <rect x="8" y="23" width="72" height="5" fill="url(#frame1)"/>
+    <!-- Title bar dots -->
+    <circle cx="18" cy="21" r="2.5" fill="#ff5f57"/>
+    <circle cx="26" cy="21" r="2.5" fill="#febc2e"/>
+    <circle cx="34" cy="21" r="2.5" fill="#28c840"/>
+    <!-- Screen -->
+    <rect x="11" y="29" width="66" height="40" rx="2" ry="2" fill="url(#termBg1)"/>
+    <!-- Terminal text - SSH prompt -->
+    <text x="15" y="38" font-family="monospace" font-size="6" fill="#4ade80" opacity="0.9">$ ssh user@host</text>
+    <text x="15" y="46" font-family="monospace" font-size="6" fill="#4ade80" opacity="0.7">Connected.</text>
+    <text x="15" y="54" font-family="monospace" font-size="6" fill="#4ade80" opacity="0.8">user@host:~$</text>
+    <!-- Cursor blink -->
+    <rect x="60" y="50" width="5" height="6" rx="0.5" fill="#4ade80" opacity="0.9">
+      <animate attributeName="opacity" values="0.9;0.2;0.9" dur="1.2s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- SSH Key 1 (golden key, bottom-right) -->
+  <g filter="url(#keyShadow)" transform="translate(78, 78) rotate(-30)">
+    <!-- Key head (ring) -->
+    <circle cx="0" cy="0" r="11" fill="none" stroke="url(#keyGrad)" stroke-width="4.5"/>
+    <circle cx="0" cy="0" r="5" fill="url(#keyGrad)" opacity="0.3"/>
+    <!-- Key shaft -->
+    <rect x="-2.2" y="9" width="4.4" height="24" rx="2" fill="url(#keyGrad)"/>
+    <!-- Key teeth -->
+    <rect x="2.2" y="24" width="6" height="3.5" rx="1" fill="url(#keyGrad)"/>
+    <rect x="2.2" y="29" width="4.5" height="3.5" rx="1" fill="url(#keyGrad)"/>
+  </g>
+
+  <!-- SSH Key 2 (lighter golden key, overlapping) -->
+  <g filter="url(#keyShadow)" transform="translate(92, 72) rotate(15)">
+    <!-- Key head (ring) -->
+    <circle cx="0" cy="0" r="9" fill="none" stroke="url(#keyGrad2)" stroke-width="4"/>
+    <circle cx="0" cy="0" r="4" fill="url(#keyGrad2)" opacity="0.3"/>
+    <!-- Key shaft -->
+    <rect x="-2" y="7" width="4" height="20" rx="1.5" fill="url(#keyGrad2)"/>
+    <!-- Key teeth -->
+    <rect x="2" y="19" width="5" height="3" rx="1" fill="url(#keyGrad2)"/>
+    <rect x="2" y="23.5" width="3.5" height="3" rx="1" fill="url(#keyGrad2)"/>
+  </g>
+</svg>
