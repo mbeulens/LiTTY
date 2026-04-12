@@ -44,6 +44,7 @@ class LittyApplication(Adw.Application):
             self.config.terminal = detect_terminal()
             save_config(self.config)
 
+        self._apply_theme(self.config.theme)
         self._setup_actions()
 
     def do_activate(self):
@@ -109,17 +110,35 @@ class LittyApplication(Adw.Application):
             msg += f", {skipped} duplicate(s) skipped"
         self.win.show_toast(msg)
 
+    def _apply_theme(self, theme: str):
+        style_manager = Adw.StyleManager.get_default()
+        schemes = {
+            "light": Adw.ColorScheme.FORCE_LIGHT,
+            "dark": Adw.ColorScheme.FORCE_DARK,
+            "auto": Adw.ColorScheme.DEFAULT,
+        }
+        style_manager.set_color_scheme(schemes.get(theme, Adw.ColorScheme.DEFAULT))
+
     def _on_preferences(self, action, param):
         from .dialogs import PreferencesDialog
 
-        dialog = PreferencesDialog(current_terminal=self.config.terminal)
+        dialog = PreferencesDialog(
+            current_terminal=self.config.terminal,
+            current_theme=self.config.theme,
+        )
         dialog.connect("terminal-changed", self._on_terminal_changed)
+        dialog.connect("theme-changed", self._on_theme_changed)
         dialog.present(self.win)
 
     def _on_terminal_changed(self, dialog, terminal):
         self.config.terminal = terminal
         save_config(self.config)
         self.win.show_toast(f"Terminal set to: {terminal}")
+
+    def _on_theme_changed(self, dialog, theme):
+        self.config.theme = theme
+        self._apply_theme(theme)
+        save_config(self.config)
 
     def _on_about(self, action, param):
         about = Adw.AboutDialog(

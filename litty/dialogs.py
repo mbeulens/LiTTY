@@ -206,14 +206,18 @@ class PreferencesDialog(Adw.Dialog):
     __gtype_name__ = "PreferencesDialog"
     __gsignals__ = {
         "terminal-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
+        "theme-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
     }
 
-    def __init__(self, current_terminal: str = "gnome-terminal", **kwargs):
+    _THEME_OPTIONS = ["Auto", "Light", "Dark"]
+
+    def __init__(self, current_terminal: str = "gnome-terminal", current_theme: str = "auto", **kwargs):
         super().__init__(**kwargs)
+        self._initial_theme = current_theme
 
         self.set_title("Preferences")
         self.set_content_width(400)
-        self.set_content_height(300)
+        self.set_content_height(400)
 
         toolbar_view = Adw.ToolbarView()
         self.set_child(toolbar_view)
@@ -224,6 +228,18 @@ class PreferencesDialog(Adw.Dialog):
         page = Adw.PreferencesPage()
         toolbar_view.set_content(page)
 
+        # Appearance group
+        appearance_group = Adw.PreferencesGroup(title="Appearance")
+        page.add(appearance_group)
+
+        self._theme_row = Adw.ComboRow(title="Theme")
+        theme_model = Gtk.StringList.new(self._THEME_OPTIONS)
+        self._theme_row.set_model(theme_model)
+        theme_index = {"auto": 0, "light": 1, "dark": 2}.get(current_theme, 0)
+        self._theme_row.set_selected(theme_index)
+        appearance_group.add(self._theme_row)
+
+        # Terminal group
         group = Adw.PreferencesGroup(title="Terminal")
         page.add(group)
 
@@ -250,3 +266,7 @@ class PreferencesDialog(Adw.Dialog):
         terminal = self._terminal_row.get_text().strip()
         if terminal:
             self.emit("terminal-changed", terminal)
+
+        theme = self._THEME_OPTIONS[self._theme_row.get_selected()].lower()
+        if theme != self._initial_theme:
+            self.emit("theme-changed", theme)
