@@ -118,15 +118,26 @@ class LittyWindow(Adw.ApplicationWindow):
         for session in self.config.sessions:
             groups[session.group or "Ungrouped"].append(session)
 
+        self._group_session_rows: dict[str, list[SessionRow]] = {}
+
         for group_name in sorted(groups.keys()):
-            # Group header with color
-            header_row = Gtk.ListBoxRow(selectable=False, activatable=False)
+            collapsed = group_name in self.config.collapsed_groups
+
+            # Group header - activatable so it can be clicked
+            header_row = Gtk.ListBoxRow(selectable=False, activatable=True)
+            header_row._group_name = group_name
             header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
             header_box.add_css_class("group-header-bar")
             header_box.set_margin_top(8)
             header_box.set_margin_bottom(2)
 
-            group_icon = Gtk.Image(icon_name="folder-symbolic")
+            chevron = Gtk.Image(icon_name="pan-down-symbolic" if not collapsed else "pan-end-symbolic")
+            chevron.add_css_class("group-header")
+            chevron.add_css_class("group-chevron")
+            header_box.append(chevron)
+            header_row._chevron = chevron
+
+            group_icon = Gtk.Image(icon_name="folder-symbolic" if not collapsed else "folder-symbolic")
             group_icon.add_css_class("group-header")
             header_box.append(group_icon)
 
@@ -144,10 +155,17 @@ class LittyWindow(Adw.ApplicationWindow):
             header_row.set_child(header_box)
             self._listbox.append(header_row)
 
+            session_rows = []
             for session in sorted(groups[group_name], key=lambda s: s.name.lower()):
                 row = SessionRow(session)
                 row.connect("edit-clicked", self._on_edit_clicked)
+                row._group_name = group_name
+                if collapsed:
+                    row.set_visible(False)
                 self._listbox.append(row)
+                session_rows.append(row)
+
+            self._group_session_rows[group_name] = session_rows
 
         self._listbox.set_filter_func(self._filter_func)
 
@@ -163,6 +181,24 @@ class LittyWindow(Adw.ApplicationWindow):
     def _on_row_activated(self, listbox, row):
         if isinstance(row, SessionRow):
             self._do_connect(row.session)
+        elif hasattr(row, "_group_name"):
+            self._toggle_group(row)
+
+    def _toggle_group(self, header_row):
+        group_name = header_row._group_name
+        collapsed = group_name in self.config.collapsed_groups
+
+        if collapsed:
+            self.config.collapsed_groups.remove(group_name)
+            header_row._chevron.set_from_icon_name("pan-down-symbolic")
+        else:
+            self.config.collapsed_groups.append(group_name)
+            header_row._chevron.set_from_icon_name("pan-end-symbolic")
+
+        for row in self._group_session_rows.get(group_name, []):
+            row.set_visible(collapsed)
+
+        save_config(self.config)
 
     def _do_connect(self, session: Session):
         try:
