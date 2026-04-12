@@ -46,6 +46,15 @@ class LittyWindow(Adw.ApplicationWindow):
         self._search_toggle.connect("toggled", self._on_search_toggled)
         header.pack_end(self._search_toggle)
 
+        style_mgr = Adw.StyleManager.get_default()
+        is_dark = style_mgr.get_dark()
+        self._theme_btn = Gtk.Button(
+            icon_name="weather-clear-night-symbolic" if is_dark else "display-brightness-symbolic",
+            tooltip_text="Switch to light mode" if is_dark else "Switch to dark mode",
+        )
+        self._theme_btn.connect("clicked", self._on_theme_toggle)
+        header.pack_end(self._theme_btn)
+
         # Menu
         menu = Gio.Menu()
         menu.append("Import PuTTY Sessions...", "app.import-reg")
@@ -198,6 +207,24 @@ class LittyWindow(Adw.ApplicationWindow):
         for row in self._group_session_rows.get(group_name, []):
             row.set_visible(collapsed)
 
+        save_config(self.config)
+
+    def _on_theme_toggle(self, button):
+        style_mgr = Adw.StyleManager.get_default()
+        is_dark = style_mgr.get_dark()
+
+        if is_dark:
+            new_theme = "light"
+            style_mgr.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
+            button.set_icon_name("display-brightness-symbolic")
+            button.set_tooltip_text("Switch to dark mode")
+        else:
+            new_theme = "dark"
+            style_mgr.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
+            button.set_icon_name("weather-clear-night-symbolic")
+            button.set_tooltip_text("Switch to light mode")
+
+        self.config.theme = new_theme
         save_config(self.config)
 
     def _do_connect(self, session: Session):
