@@ -44,7 +44,8 @@ def launch_session(session: Session, terminal: str = "gnome-terminal") -> None:
     terminal_base = terminal.split("/")[-1].split()[0]  # handle full paths
 
     if terminal_base == "gnome-terminal":
-        argv = [terminal, "--", *cmd]
+        title = session.display_name
+        argv = [terminal, "--title", title, "--wait", "--", *cmd]
     elif terminal_base in ("konsole",):
         argv = [terminal, "-e", *cmd]
     elif terminal_base in ("xfce4-terminal", "xterm"):
