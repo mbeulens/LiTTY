@@ -80,9 +80,7 @@
 
 /* ── Header bar tint ───────────────────────────────── */
 .litty-header {
-    background: linear-gradient(to right,
-        alpha(#3584e4, 0.12),
-        alpha(#2ec27e, 0.08));
+    background: none;
 }
 
 /* ── New session button ────────────────────────────── */
