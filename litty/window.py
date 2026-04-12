@@ -9,6 +9,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gtk, Gio, GLib
 
+from . import __version__
 from .models import AppConfig, Session, save_config
 from .launcher import launch_session
 from .widgets import SessionRow
@@ -20,7 +21,7 @@ class LittyWindow(Adw.ApplicationWindow):
         self.config = config
         self._filter_query = ""
 
-        self.set_title("LiTTY")
+        self.set_title(f"LiTTY v{__version__}")
         self.set_default_size(550, 650)
 
         # Toast overlay wraps everything
