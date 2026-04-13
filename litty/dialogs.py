@@ -76,6 +76,9 @@ class SessionDialog(Adw.Dialog):
         self._group_row = Adw.EntryRow(title="Group")
         conn_group.add(self._group_row)
 
+        self._description_row = Adw.EntryRow(title="Description")
+        conn_group.add(self._description_row)
+
         self._hostname_row = Adw.EntryRow(title="Hostname")
         conn_group.add(self._hostname_row)
 
@@ -114,6 +117,7 @@ class SessionDialog(Adw.Dialog):
         if session:
             self._name_row.set_text(session.name)
             self._group_row.set_text(session.group)
+            self._description_row.set_text(session.description)
             self._hostname_row.set_text(session.hostname)
             self._username_row.set_text(session.username)
             self._protocol_row.set_selected(0 if session.protocol == "ssh" else 1)
@@ -146,6 +150,7 @@ class SessionDialog(Adw.Dialog):
 
         name = self._name_row.get_text().strip() or hostname
         group = self._group_row.get_text().strip()
+        description = self._description_row.get_text().strip()
         username = self._username_row.get_text().strip()
         protocol = "ssh" if self._protocol_row.get_selected() == 0 else "telnet"
         port = int(self._port_row.get_value())
@@ -159,6 +164,7 @@ class SessionDialog(Adw.Dialog):
             id=self._session.id if self._editing else str(uuid.uuid4()),
             name=name,
             group=group,
+            description=description,
             hostname=hostname,
             port=port,
             protocol=protocol,

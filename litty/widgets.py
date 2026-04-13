@@ -73,6 +73,34 @@ class SessionRow(Gtk.ListBoxRow):
 
         self.set_child(outer)
 
+        # Hover popover for description
+        if session.description:
+            self._popover = Gtk.Popover()
+            self._popover.set_parent(self)
+            self._popover.set_autohide(False)
+            self._popover.set_can_focus(False)
+            label = Gtk.Label(label=session.description, wrap=True, max_width_chars=40)
+            label.set_margin_top(6)
+            label.set_margin_bottom(6)
+            label.set_margin_start(8)
+            label.set_margin_end(8)
+            self._popover.set_child(label)
+
+            hover = Gtk.EventControllerMotion()
+            hover.connect("enter", self._on_hover_enter)
+            hover.connect("leave", self._on_hover_leave)
+            self.add_controller(hover)
+        else:
+            self._popover = None
+
+    def _on_hover_enter(self, controller, x, y):
+        if self._popover:
+            self._popover.popup()
+
+    def _on_hover_leave(self, controller):
+        if self._popover:
+            self._popover.popdown()
+
     def _on_edit_clicked(self, button):
         self.emit("edit-clicked", self.session)
 
@@ -83,4 +111,5 @@ class SessionRow(Gtk.ListBoxRow):
             or q in self.session.hostname.lower()
             or q in self.session.username.lower()
             or q in self.session.group.lower()
+            or q in self.session.description.lower()
         )

@@ -28,6 +28,7 @@ class Session:
     protocol: str = "ssh"
     username: str = ""
     terminal_profile: str = ""
+    description: str = ""
     port_forwardings: list[PortForward] = field(default_factory=list)
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
