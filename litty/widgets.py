@@ -56,11 +56,22 @@ class SessionRow(Gtk.ListBoxRow):
         info_box.append(detail_label)
         outer.append(info_box)
 
-        # Protocol badge
-        badge = Gtk.Label(label=session.protocol.upper())
-        badge.add_css_class("protocol-badge")
-        badge.add_css_class(f"protocol-{session.protocol}")
-        badge.set_valign(Gtk.Align.CENTER)
+        # Badge: OS if set, otherwise protocol
+        if session.os_type:
+            _OS_LABELS = {
+                "windows": "Windows", "ubuntu": "Ubuntu", "debian": "Debian",
+                "fedora": "Fedora", "centos": "CentOS", "rhel": "RHEL",
+                "arch": "Arch", "opensuse": "openSUSE", "macos": "macOS",
+            }
+            badge = Gtk.Label(label=_OS_LABELS.get(session.os_type, session.os_type.title()))
+            badge.add_css_class("protocol-badge")
+            badge.add_css_class(f"os-{session.os_type}")
+            badge.set_valign(Gtk.Align.CENTER)
+        else:
+            badge = Gtk.Label(label=session.protocol.upper())
+            badge.add_css_class("protocol-badge")
+            badge.add_css_class(f"protocol-{session.protocol}")
+            badge.set_valign(Gtk.Align.CENTER)
         outer.append(badge)
 
         # Edit button

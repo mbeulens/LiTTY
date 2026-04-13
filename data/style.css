@@ -92,6 +92,52 @@
     background-color: alpha(@success_color, 0.12);
 }
 
+/* ── OS badges ────────────────────────────────────── */
+.os-windows {
+    background-color: alpha(#3584e4, 0.15);
+    color: #3584e4;
+}
+
+.os-ubuntu {
+    background-color: alpha(#e95420, 0.15);
+    color: #e95420;
+}
+
+.os-debian {
+    background-color: alpha(#d70751, 0.15);
+    color: #d70751;
+}
+
+.os-fedora {
+    background-color: alpha(#3c6eb4, 0.15);
+    color: #3c6eb4;
+}
+
+.os-centos {
+    background-color: alpha(#932279, 0.15);
+    color: #932279;
+}
+
+.os-rhel {
+    background-color: alpha(#ee0000, 0.15);
+    color: #ee0000;
+}
+
+.os-arch {
+    background-color: alpha(#1793d1, 0.15);
+    color: #1793d1;
+}
+
+.os-opensuse {
+    background-color: alpha(#73ba25, 0.15);
+    color: #73ba25;
+}
+
+.os-macos {
+    background-color: alpha(#a2aaad, 0.15);
+    color: #a2aaad;
+}
+
 /* ── Port forwarding pills ─────────────────────────── */
 .fwd-local {
     color: #3584e4;

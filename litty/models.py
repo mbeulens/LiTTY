@@ -29,6 +29,7 @@ class Session:
     username: str = ""
     terminal_profile: str = ""
     description: str = ""
+    os_type: str = ""  # e.g. "windows", "ubuntu", "fedora", etc.
     port_forwardings: list[PortForward] = field(default_factory=list)
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 

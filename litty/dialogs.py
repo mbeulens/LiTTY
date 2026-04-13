@@ -97,6 +97,14 @@ class SessionDialog(Adw.Dialog):
         self._port_row = Adw.SpinRow(title="Port", adjustment=port_adj)
         conn_group.add(self._port_row)
 
+        # OS type combo
+        self._OS_OPTIONS = ["None", "Windows", "Ubuntu", "Debian", "Fedora",
+                            "CentOS", "RHEL", "Arch", "openSUSE", "macOS"]
+        self._os_row = Adw.ComboRow(title="Operating System")
+        os_model = Gtk.StringList.new(self._OS_OPTIONS)
+        self._os_row.set_model(os_model)
+        conn_group.add(self._os_row)
+
         # Terminal group
         term_group = Adw.PreferencesGroup(title="Terminal")
         term_group.set_description("Profile name from your terminal emulator (e.g. gnome-terminal profile)")
@@ -122,6 +130,12 @@ class SessionDialog(Adw.Dialog):
             self._username_row.set_text(session.username)
             self._protocol_row.set_selected(0 if session.protocol == "ssh" else 1)
             self._port_row.set_value(session.port)
+            os_index = 0
+            for i, opt in enumerate(self._OS_OPTIONS):
+                if opt.lower() == session.os_type:
+                    os_index = i
+                    break
+            self._os_row.set_selected(os_index)
             self._profile_row.set_text(session.terminal_profile)
             if session.port_forwardings:
                 fwd_str = ",".join(
@@ -154,6 +168,8 @@ class SessionDialog(Adw.Dialog):
         username = self._username_row.get_text().strip()
         protocol = "ssh" if self._protocol_row.get_selected() == 0 else "telnet"
         port = int(self._port_row.get_value())
+        os_selected = self._OS_OPTIONS[self._os_row.get_selected()].lower()
+        os_type = "" if os_selected == "none" else os_selected
         terminal_profile = self._profile_row.get_text().strip()
 
         # Parse port forwardings
@@ -170,6 +186,7 @@ class SessionDialog(Adw.Dialog):
             protocol=protocol,
             username=username,
             terminal_profile=terminal_profile,
+            os_type=os_type,
             port_forwardings=port_forwardings,
         )
 
