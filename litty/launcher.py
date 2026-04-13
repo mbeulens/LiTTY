@@ -45,7 +45,7 @@ def launch_session(session: Session, terminal: str = "gnome-terminal") -> None:
 
     if terminal_base == "gnome-terminal":
         title = session.display_name
-        argv = [terminal, "--title", title, "--wait"]
+        argv = [terminal, "--title", title]
         if session.terminal_profile:
             argv.extend(["--profile", session.terminal_profile])
         argv.extend(["--", *cmd])

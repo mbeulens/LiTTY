@@ -230,15 +230,9 @@ class LittyWindow(Adw.ApplicationWindow):
     def _do_connect(self, session: Session):
         try:
             launch_session(session, self.config.terminal)
-            self.minimize()
-            GLib.timeout_add(500, self._restore_after_launch)
             self.show_toast(f"Connecting to {session.display_name}...")
         except Exception as e:
             self.show_toast(f"Failed to connect: {e}")
-
-    def _restore_after_launch(self):
-        self.present()
-        return False
 
     def _on_new_session(self, button):
         from .dialogs import SessionDialog
