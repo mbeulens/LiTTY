@@ -125,21 +125,45 @@ class LittyApplication(Adw.Application):
         except FileNotFoundError:
             return  # ssh-add not available
 
-        # No keys loaded — run ssh-add with graphical askpass
-        import os, shutil
-        env = os.environ.copy()
-        env["SSH_ASKPASS_REQUIRE"] = "prefer"
-        # Find a graphical askpass if not already set
-        if "SSH_ASKPASS" not in env:
-            for askpass in ["/usr/libexec/gcr4-ssh-askpass", "/usr/libexec/gcr-ssh-askpass",
-                            "/usr/libexec/seahorse/ssh-askpass",
-                            "/usr/lib/openssh/gnome-ssh-askpass", "/usr/libexec/openssh/gnome-ssh-askpass",
-                            "ssh-askpass", "ksshaskpass", "lxqt-openssh-askpass"]:
-                if shutil.which(askpass):
-                    env["SSH_ASKPASS"] = askpass
-                    break
+        self._show_passphrase_dialog()
 
-        subprocess.Popen(["ssh-add"], env=env, start_new_session=True)
+    def _show_passphrase_dialog(self):
+        """Show an Adw dialog to collect the SSH key passphrase."""
+        dialog = Adw.AlertDialog(
+            heading="Unlock SSH Key",
+            body="Enter your SSH key passphrase to load your key into the agent.",
+        )
+        entry = Gtk.PasswordEntry(show_peek_icon=True)
+        entry.set_size_request(300, -1)
+        entry.add_css_class("card")
+        dialog.set_extra_child(entry)
+        dialog.add_response("cancel", "Cancel")
+        dialog.add_response("unlock", "Unlock")
+        dialog.set_response_appearance("unlock", Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response("unlock")
+        dialog.set_close_response("cancel")
+        entry.connect("activate", lambda e: dialog.response("unlock"))
+        dialog.choose(self.win, None, self._on_passphrase_response, entry)
+
+    def _on_passphrase_response(self, dialog, result, entry):
+        response = dialog.choose_finish(result)
+        if response != "unlock":
+            return
+        passphrase = entry.get_text()
+        if not passphrase:
+            return
+        try:
+            proc = subprocess.run(
+                ["ssh-add"],
+                input=passphrase + "\n",
+                capture_output=True, text=True,
+            )
+            if proc.returncode == 0:
+                self.win.show_toast("SSH key unlocked")
+            else:
+                self.win.show_toast("Failed to unlock SSH key")
+        except FileNotFoundError:
+            self.win.show_toast("ssh-add not found")
 
     def _apply_theme(self, theme: str):
         style_manager = Adw.StyleManager.get_default()
