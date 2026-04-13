@@ -28,12 +28,28 @@ class SessionRow(Gtk.ListBoxRow):
         outer.set_margin_start(12)
         outer.set_margin_end(8)
 
-        # Protocol icon with color
+        # Protocol icon with color (clickable for description popover)
         icon_name = "network-server-symbolic" if session.protocol == "ssh" else "network-transmit-symbolic"
+
         icon = Gtk.Image(icon_name=icon_name)
         icon.set_pixel_size(28)
         icon.add_css_class(f"icon-{session.protocol}")
         outer.append(icon)
+
+        if session.description:
+            self._desc_popover = Gtk.Popover()
+            self._desc_popover.set_parent(icon)
+            label = Gtk.Label(wrap=True, max_width_chars=40, use_markup=True)
+            label.set_markup(session.description)
+            label.set_margin_top(6)
+            label.set_margin_bottom(6)
+            label.set_margin_start(8)
+            label.set_margin_end(8)
+            self._desc_popover.set_child(label)
+
+            click = Gtk.GestureClick(button=1)
+            click.connect("pressed", self._on_icon_clicked)
+            icon.add_controller(click)
 
         # Session info (name + detail)
         info_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, hexpand=True)
@@ -84,34 +100,8 @@ class SessionRow(Gtk.ListBoxRow):
 
         self.set_child(outer)
 
-        # Hover popover for description
-        if session.description:
-            self._popover = Gtk.Popover()
-            self._popover.set_parent(self)
-            self._popover.set_autohide(False)
-            self._popover.set_can_focus(False)
-            label = Gtk.Label(wrap=True, max_width_chars=40, use_markup=True)
-            label.set_markup(session.description)
-            label.set_margin_top(6)
-            label.set_margin_bottom(6)
-            label.set_margin_start(8)
-            label.set_margin_end(8)
-            self._popover.set_child(label)
-
-            hover = Gtk.EventControllerMotion()
-            hover.connect("enter", self._on_hover_enter)
-            hover.connect("leave", self._on_hover_leave)
-            self.add_controller(hover)
-        else:
-            self._popover = None
-
-    def _on_hover_enter(self, controller, x, y):
-        if self._popover:
-            self._popover.popup()
-
-    def _on_hover_leave(self, controller):
-        if self._popover:
-            self._popover.popdown()
+    def _on_icon_clicked(self, gesture, n_press, x, y):
+        self._desc_popover.popup()
 
     def _on_edit_clicked(self, button):
         self.emit("edit-clicked", self.session)
