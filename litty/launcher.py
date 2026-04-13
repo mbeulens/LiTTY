@@ -71,8 +71,10 @@ def launch_session(session: Session, terminal: str = "gnome-terminal") -> None:
 
     display = Gdk.Display.get_default()
     context = display.get_app_launch_context()
+    startup_id = context.get_startup_notify_id(None, [])
     launcher = Gio.SubprocessLauncher.new(Gio.SubprocessFlags.NONE)
-    launcher.setenv("DESKTOP_STARTUP_ID", context.get_startup_notify_id(None, []), True)
+    if startup_id:
+        launcher.setenv("DESKTOP_STARTUP_ID", startup_id, True)
     launcher.spawnv(argv)
 
 
