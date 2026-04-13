@@ -101,6 +101,11 @@ class LittyWindow(Adw.ApplicationWindow):
         self._listbox.add_css_class("boxed-list")
         self._listbox.connect("row-activated", self._on_row_activated)
 
+        # Double-click gesture for session connect
+        click_gesture = Gtk.GestureClick(button=1)
+        click_gesture.connect("pressed", self._on_listbox_pressed)
+        self._listbox.add_controller(click_gesture)
+
         clamp.set_child(self._listbox)
         scrolled.set_child(clamp)
         self._content_stack.add_named(scrolled, "list")
@@ -189,9 +194,16 @@ class LittyWindow(Adw.ApplicationWindow):
 
     def _on_row_activated(self, listbox, row):
         if isinstance(row, SessionRow):
-            self._do_connect(row.session)
+            if not self.config.double_click_to_connect:
+                self._do_connect(row.session)
         elif hasattr(row, "_group_name"):
             self._toggle_group(row)
+
+    def _on_listbox_pressed(self, gesture, n_press, x, y):
+        if n_press == 2 and self.config.double_click_to_connect:
+            row = self._listbox.get_row_at_y(int(y))
+            if isinstance(row, SessionRow):
+                self._do_connect(row.session)
 
     def _toggle_group(self, header_row):
         group_name = header_row._group_name

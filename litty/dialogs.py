@@ -219,15 +219,18 @@ class PreferencesDialog(Adw.Dialog):
         "terminal-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
         "theme-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
         "ssh-unlock-changed": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
+        "double-click-changed": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
     }
 
     _THEME_OPTIONS = ["Auto", "Light", "Dark"]
 
     def __init__(self, current_terminal: str = "gnome-terminal", current_theme: str = "auto",
-                 ssh_unlock_on_start: bool = False, **kwargs):
+                 ssh_unlock_on_start: bool = False, double_click_to_connect: bool = False,
+                 **kwargs):
         super().__init__(**kwargs)
         self._initial_theme = current_theme
         self._initial_ssh_unlock = ssh_unlock_on_start
+        self._initial_double_click = double_click_to_connect
 
         self.set_title("Preferences")
         self.set_content_width(400)
@@ -252,6 +255,15 @@ class PreferencesDialog(Adw.Dialog):
         theme_index = {"auto": 0, "light": 1, "dark": 2}.get(current_theme, 0)
         self._theme_row.set_selected(theme_index)
         appearance_group.add(self._theme_row)
+
+        # Behavior group
+        behavior_group = Adw.PreferencesGroup(title="Behavior")
+        page.add(behavior_group)
+
+        self._double_click_row = Adw.SwitchRow(title="Double-click to connect",
+                                                subtitle="Require double-click to open a session")
+        self._double_click_row.set_active(double_click_to_connect)
+        behavior_group.add(self._double_click_row)
 
         # SSH group
         ssh_group = Adw.PreferencesGroup(title="SSH")
@@ -297,3 +309,7 @@ class PreferencesDialog(Adw.Dialog):
         ssh_unlock = self._ssh_unlock_row.get_active()
         if ssh_unlock != self._initial_ssh_unlock:
             self.emit("ssh-unlock-changed", ssh_unlock)
+
+        double_click = self._double_click_row.get_active()
+        if double_click != self._initial_double_click:
+            self.emit("double-click-changed", double_click)

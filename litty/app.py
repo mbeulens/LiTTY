@@ -199,10 +199,12 @@ class LittyApplication(Adw.Application):
             current_terminal=self.config.terminal,
             current_theme=self.config.theme,
             ssh_unlock_on_start=self.config.ssh_unlock_on_start,
+            double_click_to_connect=self.config.double_click_to_connect,
         )
         dialog.connect("terminal-changed", self._on_terminal_changed)
         dialog.connect("theme-changed", self._on_theme_changed)
         dialog.connect("ssh-unlock-changed", self._on_ssh_unlock_changed)
+        dialog.connect("double-click-changed", self._on_double_click_changed)
         dialog.present(self.win)
 
     def _on_terminal_changed(self, dialog, terminal):
@@ -217,6 +219,10 @@ class LittyApplication(Adw.Application):
 
     def _on_ssh_unlock_changed(self, dialog, enabled):
         self.config.ssh_unlock_on_start = enabled
+        save_config(self.config)
+
+    def _on_double_click_changed(self, dialog, enabled):
+        self.config.double_click_to_connect = enabled
         save_config(self.config)
 
     def _on_about(self, action, param):
