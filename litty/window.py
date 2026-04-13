@@ -98,6 +98,7 @@ class LittyWindow(Adw.ApplicationWindow):
 
         self._listbox = Gtk.ListBox()
         self._listbox.set_selection_mode(Gtk.SelectionMode.NONE)
+        self._listbox.set_margin_bottom(18)
         self._listbox.add_css_class("boxed-list")
         self._listbox.connect("row-activated", self._on_row_activated)
 
