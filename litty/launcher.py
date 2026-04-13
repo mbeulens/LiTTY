@@ -45,9 +45,15 @@ def launch_session(session: Session, terminal: str = "gnome-terminal") -> None:
 
     if terminal_base == "gnome-terminal":
         title = session.display_name
-        argv = [terminal, "--title", title, "--wait", "--", *cmd]
+        argv = [terminal, "--title", title, "--wait"]
+        if session.terminal_profile:
+            argv.extend(["--profile", session.terminal_profile])
+        argv.extend(["--", *cmd])
     elif terminal_base in ("konsole",):
-        argv = [terminal, "-e", *cmd]
+        argv = [terminal]
+        if session.terminal_profile:
+            argv.extend(["--profile", session.terminal_profile])
+        argv.extend(["-e", *cmd])
     elif terminal_base in ("xfce4-terminal", "xterm"):
         argv = [terminal, "-e", shlex.join(cmd)]
     elif terminal_base in ("alacritty", "kitty"):

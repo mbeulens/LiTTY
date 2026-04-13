@@ -94,6 +94,14 @@ class SessionDialog(Adw.Dialog):
         self._port_row = Adw.SpinRow(title="Port", adjustment=port_adj)
         conn_group.add(self._port_row)
 
+        # Terminal group
+        term_group = Adw.PreferencesGroup(title="Terminal")
+        term_group.set_description("Profile name from your terminal emulator (e.g. gnome-terminal profile)")
+        page.add(term_group)
+
+        self._profile_row = Adw.EntryRow(title="Terminal Profile")
+        term_group.add(self._profile_row)
+
         # Port forwardings
         fwd_group = Adw.PreferencesGroup(title="Port Forwardings")
         fwd_group.set_description("Format: L8080=localhost:80 (Local), R9090=host:90 (Remote), D1080 (Dynamic)")
@@ -110,6 +118,7 @@ class SessionDialog(Adw.Dialog):
             self._username_row.set_text(session.username)
             self._protocol_row.set_selected(0 if session.protocol == "ssh" else 1)
             self._port_row.set_value(session.port)
+            self._profile_row.set_text(session.terminal_profile)
             if session.port_forwardings:
                 fwd_str = ",".join(
                     f"{f.direction}{f.listen_port}={f.destination}" if f.destination
@@ -140,6 +149,7 @@ class SessionDialog(Adw.Dialog):
         username = self._username_row.get_text().strip()
         protocol = "ssh" if self._protocol_row.get_selected() == 0 else "telnet"
         port = int(self._port_row.get_value())
+        terminal_profile = self._profile_row.get_text().strip()
 
         # Parse port forwardings
         fwd_text = self._fwd_entry.get_text().strip()
@@ -153,6 +163,7 @@ class SessionDialog(Adw.Dialog):
             port=port,
             protocol=protocol,
             username=username,
+            terminal_profile=terminal_profile,
             port_forwardings=port_forwardings,
         )
 
