@@ -8,6 +8,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gtk, Gdk, Gio, GLib
 
 import subprocess
+import threading
 from pathlib import Path
 
 from . import __version__, __app_id__
@@ -152,18 +153,35 @@ class LittyApplication(Adw.Application):
         passphrase = entry.get_text()
         if not passphrase:
             return
+        threading.Thread(
+            target=self._run_ssh_add, args=(passphrase,), daemon=True
+        ).start()
+
+    def _run_ssh_add(self, passphrase):
+        """Run ssh-add in a background thread with a pty."""
+        import os, pty, select
         try:
-            proc = subprocess.run(
+            master, slave = pty.openpty()
+            proc = subprocess.Popen(
                 ["ssh-add"],
-                input=passphrase + "\n",
-                capture_output=True, text=True,
+                stdin=slave, stdout=slave, stderr=slave,
             )
-            if proc.returncode == 0:
-                self.win.show_toast("SSH key unlocked")
-            else:
-                self.win.show_toast("Failed to unlock SSH key")
+            os.close(slave)
+            # Wait for the passphrase prompt
+            while select.select([master], [], [], 5)[0]:
+                data = os.read(master, 4096)
+                if not data or b"passphrase" in data.lower():
+                    break
+            # Send the passphrase
+            os.write(master, passphrase.encode() + b"\n")
+            proc.wait(timeout=10)
+            os.close(master)
+            msg = "SSH key unlocked" if proc.returncode == 0 else "Failed to unlock SSH key"
         except FileNotFoundError:
-            self.win.show_toast("ssh-add not found")
+            msg = "ssh-add not found"
+        except Exception:
+            msg = "Failed to unlock SSH key"
+        GLib.idle_add(self.win.show_toast, msg)
 
     def _apply_theme(self, theme: str):
         style_manager = Adw.StyleManager.get_default()
