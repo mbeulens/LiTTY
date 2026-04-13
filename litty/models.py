@@ -39,6 +39,7 @@ class Session:
 class AppConfig:
     terminal: str = "gnome-terminal"
     theme: str = "auto"  # "light", "dark", or "auto"
+    ssh_unlock_on_start: bool = False
     sessions: list[Session] = field(default_factory=list)
     collapsed_groups: list[str] = field(default_factory=list)
 
@@ -73,6 +74,7 @@ def load_config(path: Path | None = None) -> AppConfig:
     return AppConfig(
         terminal=data.get("terminal", "gnome-terminal"),
         theme=data.get("theme", "auto"),
+        ssh_unlock_on_start=data.get("ssh_unlock_on_start", False),
         sessions=sessions,
         collapsed_groups=data.get("collapsed_groups", []),
     )
@@ -85,6 +87,7 @@ def save_config(config: AppConfig, path: Path | None = None) -> None:
     data = {
         "terminal": config.terminal,
         "theme": config.theme,
+        "ssh_unlock_on_start": config.ssh_unlock_on_start,
         "sessions": [asdict(s) for s in config.sessions],
         "collapsed_groups": config.collapsed_groups,
     }

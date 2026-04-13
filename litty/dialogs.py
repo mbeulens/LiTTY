@@ -207,13 +207,16 @@ class PreferencesDialog(Adw.Dialog):
     __gsignals__ = {
         "terminal-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
         "theme-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
+        "ssh-unlock-changed": (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
     }
 
     _THEME_OPTIONS = ["Auto", "Light", "Dark"]
 
-    def __init__(self, current_terminal: str = "gnome-terminal", current_theme: str = "auto", **kwargs):
+    def __init__(self, current_terminal: str = "gnome-terminal", current_theme: str = "auto",
+                 ssh_unlock_on_start: bool = False, **kwargs):
         super().__init__(**kwargs)
         self._initial_theme = current_theme
+        self._initial_ssh_unlock = ssh_unlock_on_start
 
         self.set_title("Preferences")
         self.set_content_width(400)
@@ -238,6 +241,15 @@ class PreferencesDialog(Adw.Dialog):
         theme_index = {"auto": 0, "light": 1, "dark": 2}.get(current_theme, 0)
         self._theme_row.set_selected(theme_index)
         appearance_group.add(self._theme_row)
+
+        # SSH group
+        ssh_group = Adw.PreferencesGroup(title="SSH")
+        page.add(ssh_group)
+
+        self._ssh_unlock_row = Adw.SwitchRow(title="Unlock SSH key on startup",
+                                              subtitle="Prompts for your passphrase when LiTTY starts")
+        self._ssh_unlock_row.set_active(ssh_unlock_on_start)
+        ssh_group.add(self._ssh_unlock_row)
 
         # Terminal group
         group = Adw.PreferencesGroup(title="Terminal")
@@ -270,3 +282,7 @@ class PreferencesDialog(Adw.Dialog):
         theme = self._THEME_OPTIONS[self._theme_row.get_selected()].lower()
         if theme != self._initial_theme:
             self.emit("theme-changed", theme)
+
+        ssh_unlock = self._ssh_unlock_row.get_active()
+        if ssh_unlock != self._initial_ssh_unlock:
+            self.emit("ssh-unlock-changed", ssh_unlock)

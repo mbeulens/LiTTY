@@ -7,6 +7,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gtk, Gdk, Gio, GLib
 
+import subprocess
 from pathlib import Path
 
 from . import __version__, __app_id__
@@ -50,6 +51,8 @@ class LittyApplication(Adw.Application):
     def do_activate(self):
         if not self.win:
             self.win = LittyWindow(config=self.config, application=self)
+            if self.config.ssh_unlock_on_start:
+                self._try_ssh_unlock()
         self.win.present()
 
     def _setup_actions(self):
@@ -110,6 +113,32 @@ class LittyApplication(Adw.Application):
             msg += f", {skipped} duplicate(s) skipped"
         self.win.show_toast(msg)
 
+    def _try_ssh_unlock(self):
+        """Prompt for SSH key passphrase if no keys are loaded in the agent."""
+        try:
+            result = subprocess.run(
+                ["ssh-add", "-l"],
+                capture_output=True, text=True,
+            )
+            if result.returncode == 0:
+                return  # Keys already loaded
+        except FileNotFoundError:
+            return  # ssh-add not available
+
+        # No keys loaded — run ssh-add with graphical askpass
+        import os, shutil
+        env = os.environ.copy()
+        env["SSH_ASKPASS_REQUIRE"] = "prefer"
+        # Find a graphical askpass if not already set
+        if "SSH_ASKPASS" not in env:
+            for askpass in ["/usr/lib/openssh/gnome-ssh-askpass", "/usr/libexec/openssh/gnome-ssh-askpass",
+                            "ssh-askpass", "ksshaskpass", "lxqt-openssh-askpass"]:
+                if shutil.which(askpass):
+                    env["SSH_ASKPASS"] = askpass
+                    break
+
+        subprocess.Popen(["ssh-add"], env=env, start_new_session=True)
+
     def _apply_theme(self, theme: str):
         style_manager = Adw.StyleManager.get_default()
         schemes = {
@@ -125,9 +154,11 @@ class LittyApplication(Adw.Application):
         dialog = PreferencesDialog(
             current_terminal=self.config.terminal,
             current_theme=self.config.theme,
+            ssh_unlock_on_start=self.config.ssh_unlock_on_start,
         )
         dialog.connect("terminal-changed", self._on_terminal_changed)
         dialog.connect("theme-changed", self._on_theme_changed)
+        dialog.connect("ssh-unlock-changed", self._on_ssh_unlock_changed)
         dialog.present(self.win)
 
     def _on_terminal_changed(self, dialog, terminal):
@@ -138,6 +169,10 @@ class LittyApplication(Adw.Application):
     def _on_theme_changed(self, dialog, theme):
         self.config.theme = theme
         self._apply_theme(theme)
+        save_config(self.config)
+
+    def _on_ssh_unlock_changed(self, dialog, enabled):
+        self.config.ssh_unlock_on_start = enabled
         save_config(self.config)
 
     def _on_about(self, action, param):
