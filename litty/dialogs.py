@@ -76,8 +76,23 @@ class SessionDialog(Adw.Dialog):
         self._group_row = Adw.EntryRow(title="Group")
         conn_group.add(self._group_row)
 
-        self._description_row = Adw.EntryRow(title="Description")
-        conn_group.add(self._description_row)
+        # Description textarea
+        desc_group = Adw.PreferencesGroup(title="Description")
+        desc_group.set_description("Supports Pango markup: &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italic&lt;/i&gt;, &lt;u&gt;underline&lt;/u&gt;")
+        page.add(desc_group)
+
+        self._description_view = Gtk.TextView()
+        self._description_view.set_wrap_mode(Gtk.WrapMode.WORD)
+        self._description_view.set_top_margin(8)
+        self._description_view.set_bottom_margin(8)
+        self._description_view.set_left_margin(8)
+        self._description_view.set_right_margin(8)
+        self._description_view.set_size_request(-1, 80)
+        self._description_view.add_css_class("card")
+
+        desc_frame = Gtk.Frame()
+        desc_frame.set_child(self._description_view)
+        desc_group.add(desc_frame)
 
         self._hostname_row = Adw.EntryRow(title="Hostname")
         conn_group.add(self._hostname_row)
@@ -125,7 +140,7 @@ class SessionDialog(Adw.Dialog):
         if session:
             self._name_row.set_text(session.name)
             self._group_row.set_text(session.group)
-            self._description_row.set_text(session.description)
+            self._description_view.get_buffer().set_text(session.description)
             self._hostname_row.set_text(session.hostname)
             self._username_row.set_text(session.username)
             self._protocol_row.set_selected(0 if session.protocol == "ssh" else 1)
@@ -164,7 +179,8 @@ class SessionDialog(Adw.Dialog):
 
         name = self._name_row.get_text().strip() or hostname
         group = self._group_row.get_text().strip()
-        description = self._description_row.get_text().strip()
+        buf = self._description_view.get_buffer()
+        description = buf.get_text(buf.get_start_iter(), buf.get_end_iter(), False).strip()
         username = self._username_row.get_text().strip()
         protocol = "ssh" if self._protocol_row.get_selected() == 0 else "telnet"
         port = int(self._port_row.get_value())
