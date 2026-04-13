@@ -131,7 +131,9 @@ class LittyApplication(Adw.Application):
         env["SSH_ASKPASS_REQUIRE"] = "prefer"
         # Find a graphical askpass if not already set
         if "SSH_ASKPASS" not in env:
-            for askpass in ["/usr/lib/openssh/gnome-ssh-askpass", "/usr/libexec/openssh/gnome-ssh-askpass",
+            for askpass in ["/usr/libexec/gcr4-ssh-askpass", "/usr/libexec/gcr-ssh-askpass",
+                            "/usr/libexec/seahorse/ssh-askpass",
+                            "/usr/lib/openssh/gnome-ssh-askpass", "/usr/libexec/openssh/gnome-ssh-askpass",
                             "ssh-askpass", "ksshaskpass", "lxqt-openssh-askpass"]:
                 if shutil.which(askpass):
                     env["SSH_ASKPASS"] = askpass
