@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.2.0
+
+### Features
+- Add double-click to connect setting (configurable in Preferences)
+- Add session description field with multi-line textarea and Pango markup support
+- Add hover popover to show session description with rich text rendering
+- Add OS type per session (Windows, Ubuntu, Fedora, etc.) with colored badge
+- Description field is searchable via the session filter
+
+### UI
+- Add bottom margin to session list
+- Add "Behavior" section in Preferences
+
 ## v1.1.0
 
 ### Features

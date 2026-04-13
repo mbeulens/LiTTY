@@ -6,7 +6,10 @@ A PuTTY-like SSH/Telnet session manager for Linux, built with GTK4 and libadwait
 
 - **Session management** - Create, edit, delete, and launch SSH/Telnet sessions
 - **Session groups** - Organize sessions into collapsible groups
-- **Search/filter** - Quickly find sessions by name
+- **Session descriptions** - Add rich text descriptions to sessions, shown on hover
+- **OS type badges** - Tag sessions with their OS (Windows, Ubuntu, Fedora, etc.) shown as colored badges
+- **Double-click to connect** - Optional setting to require double-click to open sessions
+- **Search/filter** - Quickly find sessions by name, host, group, or description
 - **PuTTY import** - Import sessions from PuTTY `.reg` export files
 - **Port forwarding** - Local (-L), remote (-R), and dynamic (-D) SSH tunnels
 - **Terminal profiles** - Assign terminal emulator profiles per session
