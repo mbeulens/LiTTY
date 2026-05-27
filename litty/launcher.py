@@ -58,6 +58,11 @@ def launch_session(session: Session, terminal: str = "gnome-terminal") -> None:
         argv = [terminal, "-e", shlex.join(cmd)]
     elif terminal_base in ("alacritty", "kitty"):
         argv = [terminal, "-e", *cmd]
+    elif terminal_base == "ghostty":
+        argv = [terminal]
+        if session.ghostty_config_file:
+            argv.append(f"--config-file={session.ghostty_config_file}")
+        argv.extend(["-e", *cmd])
     elif terminal_base == "wezterm":
         argv = [terminal, "start", "--", *cmd]
     else:
@@ -71,7 +76,7 @@ def detect_terminal() -> str:
     """Try to find an available terminal emulator."""
     preferred = [
         "gnome-terminal", "konsole", "xfce4-terminal",
-        "kitty", "alacritty", "wezterm", "xterm",
+        "ghostty", "kitty", "alacritty", "wezterm", "xterm",
     ]
     for term in preferred:
         if shutil.which(term):

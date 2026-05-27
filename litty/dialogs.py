@@ -7,7 +7,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GObject, Gio
+from gi.repository import Adw, Gtk, GObject, Gio, GLib
 
 from .models import Session, PortForward
 
@@ -21,6 +21,7 @@ class SessionDialog(Adw.Dialog):
 
     def __init__(self, parent_window, session: Session | None = None, **kwargs):
         super().__init__(**kwargs)
+        self._parent_window = parent_window
         self._session = session
         self._editing = session is not None
 
@@ -122,11 +123,19 @@ class SessionDialog(Adw.Dialog):
 
         # Terminal group
         term_group = Adw.PreferencesGroup(title="Terminal")
-        term_group.set_description("Profile name from your terminal emulator (e.g. gnome-terminal profile)")
+        term_group.set_description("Profile name (e.g. gnome-terminal/konsole) or, for Ghostty, an optional config file")
         page.add(term_group)
 
         self._profile_row = Adw.EntryRow(title="Terminal Profile")
         term_group.add(self._profile_row)
+
+        self._ghostty_config_row = Adw.EntryRow(title="Ghostty Config File")
+        browse_btn = Gtk.Button(icon_name="document-open-symbolic", valign=Gtk.Align.CENTER)
+        browse_btn.add_css_class("flat")
+        browse_btn.set_tooltip_text("Browse for a Ghostty config file")
+        browse_btn.connect("clicked", self._on_browse_ghostty_config)
+        self._ghostty_config_row.add_suffix(browse_btn)
+        term_group.add(self._ghostty_config_row)
 
         # Port forwardings
         fwd_group = Adw.PreferencesGroup(title="Port Forwardings")
@@ -152,6 +161,7 @@ class SessionDialog(Adw.Dialog):
                     break
             self._os_row.set_selected(os_index)
             self._profile_row.set_text(session.terminal_profile)
+            self._ghostty_config_row.set_text(session.ghostty_config_file)
             if session.port_forwardings:
                 fwd_str = ",".join(
                     f"{f.direction}{f.listen_port}={f.destination}" if f.destination
@@ -161,6 +171,23 @@ class SessionDialog(Adw.Dialog):
                 self._fwd_entry.set_text(fwd_str)
         else:
             self._port_row.set_value(22)
+
+    def _on_browse_ghostty_config(self, button):
+        dialog = Gtk.FileDialog()
+        dialog.set_title("Select Ghostty Config File")
+        current = self._ghostty_config_row.get_text().strip()
+        if current:
+            dialog.set_initial_file(Gio.File.new_for_path(current))
+        dialog.open(self._parent_window, None, self._on_ghostty_config_chosen)
+
+    def _on_ghostty_config_chosen(self, dialog, result):
+        try:
+            file = dialog.open_finish(result)
+        except GLib.Error:
+            return  # User cancelled
+        path = file.get_path()
+        if path:
+            self._ghostty_config_row.set_text(path)
 
     def _on_protocol_changed(self, row, _pspec):
         selected = row.get_selected()
@@ -187,6 +214,7 @@ class SessionDialog(Adw.Dialog):
         os_selected = self._OS_OPTIONS[self._os_row.get_selected()].lower()
         os_type = "" if os_selected == "none" else os_selected
         terminal_profile = self._profile_row.get_text().strip()
+        ghostty_config_file = self._ghostty_config_row.get_text().strip()
 
         # Parse port forwardings
         fwd_text = self._fwd_entry.get_text().strip()
@@ -202,6 +230,7 @@ class SessionDialog(Adw.Dialog):
             protocol=protocol,
             username=username,
             terminal_profile=terminal_profile,
+            ghostty_config_file=ghostty_config_file,
             os_type=os_type,
             port_forwardings=port_forwardings,
         )
@@ -321,7 +350,7 @@ class PreferencesDialog(Adw.Dialog):
         self._terminal_row.set_text(current_terminal)
         group.add(self._terminal_row)
 
-        terminals = ["gnome-terminal", "konsole", "xfce4-terminal", "kitty", "alacritty", "wezterm", "xterm"]
+        terminals = ["gnome-terminal", "konsole", "xfce4-terminal", "ghostty", "kitty", "alacritty", "wezterm", "xterm"]
         presets_group = Adw.PreferencesGroup(title="Quick Select")
         page.add(presets_group)
 

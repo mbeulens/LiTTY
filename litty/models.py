@@ -28,6 +28,7 @@ class Session:
     protocol: str = "ssh"
     username: str = ""
     terminal_profile: str = ""
+    ghostty_config_file: str = ""  # path to a Ghostty --config-file (optional)
     description: str = ""
     os_type: str = ""  # e.g. "windows", "ubuntu", "fedora", etc.
     port_forwardings: list[PortForward] = field(default_factory=list)
